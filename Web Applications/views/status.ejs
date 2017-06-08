@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<title>Middleware for Smart Home</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/jpg" href="/images/logo.jpg" />
+	<link rel="stylesheet" type="text/css" href="/css/login.css">
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+	<script src='https://www.google.com/recaptcha/api.js'></script>
+	<script src="/js/jquery-3.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.10.0.min.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body style="background-image:url('./images/bg1.jpg');">
+	<div id="loginHeading" class="row">
+		<div style="margin:21px 0px;">Middleware for Smart Home</div>
+	</div>
+	<center id="pageCenter">
+		
+	</center>
+	<div class="Rooms hidden">
+		<div class="RoomName"></div>
+	</div>
+	<div class="DevicePair hidden">
+		<div class="Device col-xs-6"></div>
+		<label class="StatusButton">
+			  <input type="checkbox">
+			  <div class="slider round"></div>
+		</label>
+	</div>
+</body>
+<script type="text/javascript">
+	var pubnub = new PubNub({
+	    subscribeKey: "sub-c-09f86e3c-2e1e-11e7-97de-0619f8945a4f",
+	    publishKey: "pub-c-52dfaf38-9202-447f-a5c4-4fffdd0fdeac",
+	    ssl: true
+	});
+
+	var publishConfig = {
+        channel : "GetStatus",
+        message : "Hello from PubNub Docs!"
+    }
+    pubnub.publish(publishConfig, function(status, response) {
+        console.log(status, response);
+    })
+
+	pubnub.addListener({
+        status: function(statusEvent) {
+            if (statusEvent.category === "PNConnectedCategory") {
+                //publishSampleMessage();
+            }
+        },
+        message: function(message) {
+            console.log("New Message!!", message.message);
+            $("#pageCenter").html("");
+            for(key in message.message){
+
+            	if(message.message.hasOwnProperty(key)){
+            		var rclone = $(".Rooms").clone();
+            		rclone.find(".RoomName").text(key);
+
+            		for(device in message.message[key]){
+            			if(message.message[key].hasOwnProperty(device)){
+            				
+            				var dclone = $(".DevicePair").clone();
+            				dclone.find(".Device").text(device);
+            				
+            				if(message.message[key][device]['Status']){
+            					dclone.find(".StatusButton").find("input").prop('checked',true);
+            				}
+            				else{
+            					dclone.find(".StatusButton").find("input").prop('checked',false);
+            				}
+            				
+            				dclone.attr("message",key+":"+device+":"+message.message[key][device]['Status']);
+            				dclone.find(".StatusButton").find("input").attr("onchange","statusChange(this)");
+            				dclone.find(".StatusButton").removeClass("StatusButton").addClass("switch");
+            				dclone.removeClass("DevicePair").removeClass("hidden").addClass("cloneDP");
+            				rclone.append(dclone);
+            			}
+            		}
+
+            		rclone.removeClass("Rooms").removeClass("hidden").addClass("cloneRoom");
+            		$("#pageCenter").append(rclone);
+            	}
+
+            }
+        },
+        presence: function(presenceEvent) {
+            // handle presence
+        }
+    });
+
+    console.log("Subscribing..");
+    pubnub.subscribe({
+        channels: ['StatusChannel'] 
+    });
+
+    var statusChange = function(e){
+    	clicked = $(e).parent().parent();
+    	console.log(clicked);
+    	var msg = clicked.attr("message");
+    	var splitmsg = msg.split(":");
+    	splitmsg[2]=$(e).prop('checked');
+    	console.log(splitmsg);
+    	var publishConfig = {
+	        channel : "Control",
+	        message : splitmsg[0]+":"+splitmsg[1]+":"+splitmsg[2]
+	    }
+	    pubnub.publish(publishConfig, function(status, response) {
+	        console.log(status, response);
+	    })
+    }
+</script>
+</html>

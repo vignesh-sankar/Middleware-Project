@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<title>Middleware for Smart Home</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/jpg" href="/images/logo.jpg" />
+	<link rel="stylesheet" type="text/css" href="/css/login.css">
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+	<script src='https://www.google.com/recaptcha/api.js'></script>
+	<script src="/js/jquery-3.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+</head>
+<body style="background-image:url('./images/bg1.jpg');">
+	<div id="loginHeading" class="row">
+		<div style="margin:21px 0px;">Middleware for Smart Home</div>
+	</div>
+	<center><div id='failed' style="display:none;font-size:20px;color:#FFF;">Login Failed!</div></center>
+	<center></center>
+	<div id="logindiv" style="width:340px;margin-left:auto;margin-right:auto;">
+		<a id='login' style="font-size:20px;color:#f1a1a1;text-decoration:none;cursor:pointer;">Customer Login</a>
+		<a id='create' style="font-size:20px;color:#000;float:right;text-decoration:none;cursor:pointer;">Create User</a>
+		<div id="username" style="width:100%;">
+			<form action="/login" method="POST" id="logdiv">
+			  	<div class="input_names row">Email: </div><input class="inputbox row" type="text" name="email" style="color:#000;" required autofocus><br>
+			  	<div class="input_names row">Password: </div><input class="inputbox row" type="password" name="password" style="color:#000;" required><br>
+			  	<input class="btn btn-default" type="submit" value="Submit" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
+			  <!-- <input class="submitbutton row" type="submit" value="Submit"> -->
+			</form>
+			<form action="/create" method="POST" id="creatediv" style="display:none;">
+			  	<div class="input_names row">Email: </div><input class="inputbox row" type="text" name="email" style="color:#000;" required autofocus><br>
+			  	<div class="input_names row">Password: </div><input class="inputbox row" type="password" name="password" style="color:#000;" required><br>
+			  	<div class="input_names row">User Name: </div><input class="inputbox row" type="text" name="username" style="color:#000;" required><br>
+			  	<input class="btn btn-default" type="submit" value="Submit" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
+			  <!-- <input class="submitbutton row" type="submit" value="Submit"> -->
+			</form>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	$("#login").click(function(){
+		$("#logdiv").show();
+		$("#creatediv").hide();
+		$("#login").css('color','#f1a1a1');
+		$("#create").css('color','#000');
+		console.log("Login");
+	});
+	$("#create").click(function(){
+		$("#creatediv").show();
+		$("#logdiv").hide();
+		$("#create").css('color','#f1a1a1');
+		$("#login").css('color','#000');
+		console.log("Create");
+	});
+</script>
+</html>
