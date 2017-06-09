@@ -1,4 +1,6 @@
 var mysql = require('mysql')
+const uuidV4 = require('uuid/v4');
+
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'user',
@@ -45,6 +47,7 @@ exports.create = function(req,res){
 		 if(result.length) {//console.log("value exists");
 					res.send("Failure");}
 		 else{
+			 uuidV4();
 			 console.log("else:create");
 			 var insertDB = "INSERT INTO LoginDetails (email,password,name) VALUES (\""+email+"\",\""+pass+"\",\""+username+"\")";
 	console.log(insertDB);
