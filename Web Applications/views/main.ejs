@@ -21,17 +21,17 @@
 		<a id='login' style="font-size:20px;color:#f1a1a1;text-decoration:none;cursor:pointer;">Customer Login</a>
 		<a id='create' style="font-size:20px;color:#000;float:right;text-decoration:none;cursor:pointer;">Create User</a>
 		<div id="username" style="width:100%;">
-			<form action="/login" method="POST" id="logdiv">
-			  	<div class="input_names row">Email: </div><input class="inputbox row" type="text" name="email" style="color:#000;" required autofocus><br>
-			  	<div class="input_names row">Password: </div><input class="inputbox row" type="password" name="password" style="color:#000;" required><br>
-			  	<input class="btn btn-default" type="submit" value="Submit" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
+			<form id="logdiv">
+			  	<div class="input_names row">Email: </div><input class="inputbox row ca" type="text" name="email" style="color:#000;" required autofocus><br>
+			  	<div class="input_names row">Password: </div><input class="inputbox row cb" type="password" name="password" style="color:#000;" required><br>
+			  	<input class="btn btn-default" id="loginSubmit" value="Submit" type="button" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
 			  <!-- <input class="submitbutton row" type="submit" value="Submit"> -->
 			</form>
-			<form action="/create" method="POST" id="creatediv" style="display:none;">
-			  	<div class="input_names row">Email: </div><input class="inputbox row" type="text" name="email" style="color:#000;" required autofocus><br>
-			  	<div class="input_names row">Password: </div><input class="inputbox row" type="password" name="password" style="color:#000;" required><br>
-			  	<div class="input_names row">User Name: </div><input class="inputbox row" type="text" name="username" style="color:#000;" required><br>
-			  	<input class="btn btn-default" type="submit" value="Submit" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
+			<form id="creatediv" style="display:none;">
+			  	<div class="input_names row">Email: </div><input class="inputbox row ca" type="text" name="email" style="color:#000;" required autofocus><br>
+			  	<div class="input_names row">Password: </div><input class="inputbox row cb" type="password" name="password" style="color:#000;" required><br>
+			  	<div class="input_names row">User Name: </div><input class="inputbox row cc" type="text" name="username" style="color:#000;" required><br>
+			  	<input class="btn btn-default" id="createSubmit" value="Submit" type="button" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
 			  <!-- <input class="submitbutton row" type="submit" value="Submit"> -->
 			</form>
 		</div>
@@ -45,12 +45,52 @@
 		$("#create").css('color','#000');
 		console.log("Login");
 	});
+	$("#loginSubmit").click(function(){
+		var email = $("#logdiv").find(".ca").val();
+		var pass = $("#logdiv").find(".cb").val();
+		console.log(email, pass);
+		$.ajax({
+		  method: "POST",
+		  url: "/login",
+		  data: { password: pass, email: email }
+		})
+		  .done(function( msg ) {
+			console.log(msg);
+			if (msg=="Failure") alert("Login details incorrect!");
+			else {
+			
+			window.location.replace('/dashboard');
+			}
+			 });		
+	});
 	$("#create").click(function(){
 		$("#creatediv").show();
 		$("#logdiv").hide();
 		$("#create").css('color','#f1a1a1');
 		$("#login").css('color','#000');
 		console.log("Create");
+	});
+	$("#createSubmit").click(function(){
+		var email = $("#creatediv").find(".ca").val();
+		var pass = $("#creatediv").find(".cb").val();
+		var name = $("#creatediv").find(".cc").val();
+		$.ajax({
+		  method: "POST",
+		  url: "/create",
+		  data: { name: name, password: pass, email: email }
+		})
+		  .done(function( msg ) {
+			if (msg=="Failure") {
+			alert("User record already exists.");
+			$("#logdiv").show();
+		$("#creatediv").hide();
+		$("#login").css('color','#f1a1a1');
+		$("#create").css('color','#000');
+		console.log("Login");
+		}
+		else
+			window.location.replace('/dashboard');
+		  });		
 	});
 </script>
 </html>

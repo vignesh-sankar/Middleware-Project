@@ -19,9 +19,14 @@ exports.login = function(req, res){
 	  	// console.log(err);
 	  	// console.log('The solution is: ', rows[0].name);
 		else{
-	  		console.log(rows[0]);
-			if(rows.length == 0) res.redirect('/');
-			else res.redirect('/dashboard');
+	  		//console.log(rows[0]);
+			if(rows.length == 0){ 
+			//console.log(ret_val);
+				res.send("Failure");
+	
+			}
+			else 
+			{console.log(rows);res.send("Success");}
 			//res.send(rows[0].name);
 			//return;
 		}
@@ -34,13 +39,23 @@ exports.create = function(req,res){
 	var email = req.body.email;
 	var pass = req.body.password;
 	var username=req.body.username;
-	var insertDB = "INSERT INTO LoginDetails (email,password,name) VALUES (\""+email+"\",\""+pass+"\",\""+username+"\")";
+	var queryDB = "SELECT * from LoginDetails where email='"+email+"'";
+	connection.query(queryDB,function(err,result){
+	console.log(result);
+		 if(result.length) {//console.log("value exists");
+					res.send("Failure");}
+		 else{
+			 console.log("else:create");
+			 var insertDB = "INSERT INTO LoginDetails (email,password,name) VALUES (\""+email+"\",\""+pass+"\",\""+username+"\")";
 	console.log(insertDB);
 	connection.query(insertDB,function(err,result){
 		if(err) throw err
 		//console.log("Login details inserted");
 		else {
-		res.redirect('/dashboard');}
+		res.send("Success");}
 	});
+		 }
+	});
+	
 	
 };
