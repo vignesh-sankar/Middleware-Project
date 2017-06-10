@@ -1,4 +1,5 @@
 from pubnub import Pubnub
+import mysql.connector
 import json
 import time
 
@@ -18,6 +19,7 @@ ControlChannel        = "Control"
 SensorChannel         = "Sensors"
 DeviceReplyChannel    = "DevReply"
 CheckerChannel        = "Checker"
+GasSensor             = "GasSensor"
 
 #Publish Channels
 StatusReportChannel  = "StatusReport"
@@ -170,6 +172,24 @@ def DeviceReply(message, channel):
 		    DevicesIntact['House']['Actuators'][name][devType]['Status']=jsonObject[name][devType]
     
 
+def GasCallback(message, channel):
+    cnx = mysql.connector.connect(user='user', password='vidhya567',
+                              host='localhost',
+                              database='Middleware')
+
+    cursor = cnx.cursor()
+
+    query = ("SELECT * FROM LoginDetails")
+
+    cursor.execute(query)
+    print(cursor)
+    for (name) in cursor:
+        print("{}".format(name))
+
+    cursor.close()
+    cnx.close()
+
+
 pubnub.subscribe( GetDeviceChannel,      callback = GetDeviceCallback )
 pubnub.subscribe( GetStatusChannel,      callback = GetStatusCallback )
 pubnub.subscribe( StatusRetrieveChannel, callback = StatusRetrieve    )
@@ -177,3 +197,4 @@ pubnub.subscribe( ControlChannel,        callback = ControlCallback   )
 pubnub.subscribe( SensorChannel,         callback = SensorCallback    )
 pubnub.subscribe( DeviceReplyChannel,    callback = DeviceReply       )
 pubnub.subscribe( CheckerChannel,        callback = CheckerCallback   )
+pubnub.subscribe( GasSensor,             callback = GasCallback       )
