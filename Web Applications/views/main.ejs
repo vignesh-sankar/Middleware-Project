@@ -31,6 +31,7 @@
 			  	<div class="input_names row">Email: </div><input class="inputbox row ca" type="text" name="email" style="color:#000;" required autofocus><br>
 			  	<div class="input_names row">Password: </div><input class="inputbox row cb" type="password" name="password" style="color:#000;" required><br>
 			  	<div class="input_names row">User Name: </div><input class="inputbox row cc" type="text" name="username" style="color:#000;" required><br>
+				<div class="input_names row">Phone No: </div><input class="inputbox row cd" type="text" name="phoneno" style="color:#000;" required><br>
 			  	<input class="btn btn-default" id="createSubmit" value="Submit" type="button" style="width:100%;margin:36px 0px 15px;padding:10px;background-color:#4aa7f6;border:none;">
 			  <!-- <input class="submitbutton row" type="submit" value="Submit"> -->
 			</form>
@@ -74,10 +75,11 @@
 		var email = $("#creatediv").find(".ca").val();
 		var pass = $("#creatediv").find(".cb").val();
 		var name = $("#creatediv").find(".cc").val();
+		var phone = $("#creatediv").find(".cd").val();
 		$.ajax({
 		  method: "POST",
 		  url: "/create",
-		  data: { name: name, password: pass, email: email }
+		  data: { username: name, password: pass, email: email, phoneno:phone }
 		})
 		  .done(function( msg ) {
 			if (msg=="Failure") {

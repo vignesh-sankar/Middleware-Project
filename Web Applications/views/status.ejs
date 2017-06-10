@@ -63,12 +63,16 @@
             		for(device in message.message[key]){
             			if(message.message[key].hasOwnProperty(device)){
             				
-            				var dclone = $(".DevicePair").clone();
+							var dclone = $(".DevicePair").clone();
             				dclone.find(".Device").text(device);
             				
-            				if(message.message[key][device]['Status']){
-            					dclone.find(".StatusButton").find("input").prop('checked',true);
+            				if(message.message[key][device]['Status']=="Failure"){
+            					dclone.find(".StatusButton").remove();
+								dclone.append('<div class="Fail col-xs-6">Failure</div>');
             				}
+							else if (message.message[key][device]['Status']){
+								dclone.find(".StatusButton").find("input").prop('checked',true);
+							}
             				else{
             					dclone.find(".StatusButton").find("input").prop('checked',false);
             				}

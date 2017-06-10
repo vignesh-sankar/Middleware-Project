@@ -41,6 +41,7 @@ exports.create = function(req,res){
 	var email = req.body.email;
 	var pass = req.body.password;
 	var username=req.body.username;
+	var phone = req.body.phoneno;
 	var queryDB = "SELECT * from LoginDetails where email='"+email+"'";
 	connection.query(queryDB,function(err,result){
 	console.log(result);
@@ -49,7 +50,7 @@ exports.create = function(req,res){
 		 else{
 			 uuidV4();
 			 console.log("else:create");
-			 var insertDB = "INSERT INTO LoginDetails (email,password,name) VALUES (\""+email+"\",\""+pass+"\",\""+username+"\")";
+			 var insertDB = "INSERT INTO LoginDetails (email,password,name,phoneno) VALUES (\""+email+"\",\""+pass+"\",\""+username+"\",\""+phone+"\")";
 	console.log(insertDB);
 	connection.query(insertDB,function(err,result){
 		if(err) throw err
