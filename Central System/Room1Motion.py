@@ -34,13 +34,6 @@ def Initialization():
     #Give Intro
 	pubnub.publish(channel = GetDeviceChannel, message = DeviceName)
 	
-	while(1):
-		time.sleep(30)
-		pubnub.publish(channel = ControlChannel, message = ControlDevice)
-		if(ControlDevice[room][cdevice]):
-			ControlDevice[room][cdevice]=False
-		else:
-						ControlDevice[room][cdevice]=True
 
 Initialization()
 
