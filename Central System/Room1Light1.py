@@ -48,11 +48,26 @@ def Initialization():
 def DeviceControlCallback(message,channel):
     global DeviceStatus
     print message
-    split = message.split(":");
-    if(split[0]=="false"):
-        DeviceStatus = False
+    if(message == "Status"):
+        SendStatus={"Actuators":{
+                    room:{
+                        device:DeviceStatus
+                    }
+                }
+                };
+        pubnub.publish(channel = RetrieveStatusChannel, message = SendStatus)
     else:
-        DeviceStatus = True
+        split = message.split(":");
+        if(split[0]=="True"):
+            if(split[1]=="app"):
+                DeviceStatus = True
+            elif(split[1]=="sen"):
+                DeviceStatus = True
+        elif(split[0]=="False"):
+            if(split[1]=="app"):
+                DeviceStatus = False
+            elif(split[1]=="sen"):
+                DeviceStatus = False
 
 def StatusReportCallback(message,channel):
     global SendStatus
@@ -62,7 +77,7 @@ def StatusReportCallback(message,channel):
                     }
                 }
                 };
-    pubnub.publish(channel = RetrieveStatusChannel, message = SendStatus)
+    #pubnub.publish(channel = RetrieveStatusChannel, message = SendStatus)
 
 Initialization()
 pubnub.subscribe( IndividualChannel, callback = DeviceControlCallback)

@@ -43,10 +43,6 @@ def GetDeviceCallback(message, channel):
             print(devType)
             for device in jsonObject[name][devType]:
                 print(device)
-		if(jsonObject[name][devType][device]['Status']):
-                    jsonObject[name][devType][device]['Status']=True
-                else:
-                    jsonObject[name][devType][device]['Status']=False
                 concatStr = devType+"|"+device
                 if(DevicesIntact['House'].get(name)):
                     if(DevicesIntact['House'][name].get(devType)):
@@ -88,10 +84,7 @@ def GetStatusCallback(message, channel):
         NoOfMsgs =0
         done = 0
         print(done)
-	for i in DevicesResponse['Resp']:
-	    splits = i.split("|")
-	    print(splits[0]+splits[1])
-            pubnub.publish(channel = splits[0]+splits[1], message = message)
+        pubnub.publish(channel = StatusReportChannel, message = message)
     # pubnub.publish(channel = StatusRetrieveChannel, message = json.dumps(DevicesIntact))
 
 def CheckerCallback(message, channel):
@@ -126,18 +119,10 @@ def StatusRetrieve(message, channel):
     NoOfMsgs+=1
     jsonObject = json.loads(json.dumps(message))
     print(jsonObject)
-    if(jsonObject[name][devType][device]['Status']):
-        jsonObject[name][devType][device]['Status']=True
-    else:
-        jsonObject[name][devType][device]['Status']=False
     for x in jsonObject:
         for i in jsonObject[x]:
             for j in jsonObject[x][i]:
-                if(jsonObject[x][i][j]['Status']):
-	            jsonObject[x][i][j]['Status']=True
-    		else:
-       		    jsonObject[x][i][j]['Status']=False
-		DevicesIntact['House'][x][i][j]['Status']=jsonObject[x][i][j]
+                DevicesIntact['House'][x][i][j]['Status']=jsonObject[x][i][j]
                 DevicesResponse['Resp'][i+"|"+j]=True
     # print('['+channel+']: '+DevicesIntact+' N:'+str(NoOfMsgs))
     if(NoOfMsgs == NoOfDevices):
