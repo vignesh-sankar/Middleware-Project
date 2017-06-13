@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -87,46 +88,57 @@ public class StatusDisplay extends AppCompatActivity {
                     rl.addView(device);
 
                     RelativeLayout.LayoutParams newParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-
-                    ToggleButton tb = new ToggleButton(this);
-                    tb.setTextOn(" ON");
-                    tb.setTextOff("OFF");
-                    Log.d("TAG", "3: " + secondArr.getString(j));
-                    if(status.compareTo("true")==0) tb.setChecked(true);
-                    else tb.setChecked(false);
                     newParams.addRule(RelativeLayout.BELOW, count-2);
                     newParams.addRule(RelativeLayout.RIGHT_OF, count-1);
                     newParams.setMargins(200,0,50,0);
-                    tb.setContentDescription(nameArr.getString(i)+":"+secondArr.getString(j)+":");
-                    tb.setLayoutParams(newParams);
-                    tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                            // TODO Auto-generated method stub
-                            Log.d("TAG", "listener true "+ buttonView.getContentDescription()+isChecked);
-                            pubnub.publish().channel("Control").message(""+buttonView.getContentDescription()+isChecked).async(new PNCallback<PNPublishResult>() {
-                                @Override
-                                public void onResponse(PNPublishResult result, PNStatus status) {
-                                    // Check whether request successfully completed or not.
-                                    if (!status.isError()) {
-                                        Log.d("TAG", "Published!");
-                                        // Message successfully published to specified channel.
+                    if(status.compareTo("Failure")==0){
+                        TextView tb = new TextView(this);
+                        tb.setText(status);
+                        tb.setLayoutParams(newParams);
+                        rl.addView(tb);
+                    }
+                    else{
+                        ToggleButton tb = new ToggleButton(this);
+                        tb.setTextOn(" ON");
+                        tb.setTextOff("OFF");
+                        Log.d("TAG", "3: " + secondArr.getString(j));
+                        if(status.compareTo("true")==0) tb.setChecked(true);
+                        else tb.setChecked(false);
 
+                        tb.setContentDescription(nameArr.getString(i)+":"+secondArr.getString(j)+":");
+
+                        tb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                // TODO Auto-generated method stub
+                                Log.d("TAG", "listener true "+ buttonView.getContentDescription()+isChecked);
+                                pubnub.publish().channel("Control").message(""+buttonView.getContentDescription()+isChecked).async(new PNCallback<PNPublishResult>() {
+                                    @Override
+                                    public void onResponse(PNPublishResult result, PNStatus status) {
+                                        // Check whether request successfully completed or not.
+                                        if (!status.isError()) {
+                                            Log.d("TAG", "Published!");
+                                            // Message successfully published to specified channel.
+
+                                        }
+                                        // Request processing failed.
+                                        else {
+                                            Log.d("TAG", "Not Published!");
+                                            // Handle message publish error. Check 'category' property to find out possible issue
+                                            // because of which request did fail.
+                                            //
+                                            // Request can be resent using: [status retry];
+                                        }
                                     }
-                                    // Request processing failed.
-                                    else {
-                                        Log.d("TAG", "Not Published!");
-                                        // Handle message publish error. Check 'category' property to find out possible issue
-                                        // because of which request did fail.
-                                        //
-                                        // Request can be resent using: [status retry];
-                                    }
-                                }
-                            });
-                        }
-                    });
-                    rl.addView(tb);
+                                });
+                            }
+                        });
+                        tb.setLayoutParams(newParams);
+                        rl.addView(tb);
+                    }
+
                     //textView.append(nameArr.getString(i)+ ": " +secondArr.getString(j)+": "+status+"\n");
                 }
             }
@@ -134,7 +146,7 @@ public class StatusDisplay extends AppCompatActivity {
         catch(final JSONException e){
             Log.d("Error","Error: "+e.getMessage());
         }
-        addNotification();
+        //addNotification();
         //textView.setText(message);
     }
 
@@ -154,4 +166,33 @@ public class StatusDisplay extends AppCompatActivity {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(0, builder.build());
     }
+
+    public void refresh(View view){
+//        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//        startActivity(intent);
+        PNConfiguration pnConfiguration = new PNConfiguration();
+        pnConfiguration.setSubscribeKey("sub-c-09f86e3c-2e1e-11e7-97de-0619f8945a4f");
+        pnConfiguration.setPublishKey("pub-c-52dfaf38-9202-447f-a5c4-4fffdd0fdeac");
+        final PubNub pubnub = new PubNub(pnConfiguration);
+        pubnub.publish().channel("GetStatus").message("Status").async(new PNCallback<PNPublishResult>() {
+            @Override
+            public void onResponse(PNPublishResult result, PNStatus status) {
+                // Check whether request successfully completed or not.
+                if (!status.isError()) {
+                    Log.d("TAG", "Published!");
+                    // Message successfully published to specified channel.
+
+                }
+                // Request processing failed.
+                else {
+                    Log.d("TAG", "Not Published!");
+                    // Handle message publish error. Check 'category' property to find out possible issue
+                    // because of which request did fail.
+                    //
+                    // Request can be resent using: [status retry];
+                }
+            }
+        });
+    }
+
 }
