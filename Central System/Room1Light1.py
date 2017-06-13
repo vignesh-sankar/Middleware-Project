@@ -1,9 +1,10 @@
-from pubnub import Pubnub
+
+m pubnub import Pubnub
 import json
 
 pubnub = Pubnub(publish_key = 'pub-c-52dfaf38-9202-447f-a5c4-4fffdd0fdeac', subscribe_key = 'sub-c-09f86e3c-2e1e-11e7-97de-0619f8945a4f')
 
-DeviceStatus = False
+DeviceStatus = 0
 DeviceName = {}
 SendStatus = {}
 
@@ -48,11 +49,28 @@ def Initialization():
 def DeviceControlCallback(message,channel):
     global DeviceStatus
     print message
-    split = message.split(":");
-    if(split[0]=="false"):
-        DeviceStatus = False
+    if(message == "Status"):
+            SendStatus={"Actuators":{
+                    room:{
+                        device:{
+                            "Status":DeviceStatus,"Channel":IndividualChannel
+                        }
+                    }
+                }
+                };
+            pubnub.publish(channel = RetrieveStatusChannel, message = SendStatus)
     else:
-        DeviceStatus = True
+        split = message.split(":");
+        if(split[0]=="True"):
+            if(split[1]=="app"):
+                DeviceStatus = 1
+            elif(split[1]=="sen"):
+                DeviceStatus = 1
+        elif(split[0]=="False"):
+            if(split[1]=="app"):
+                DeviceStatus = 0
+            elif(split[1]=="sen"):
+                DeviceStatus = 0
 
 def StatusReportCallback(message,channel):
     global SendStatus
@@ -62,10 +80,8 @@ def StatusReportCallback(message,channel):
                     }
                 }
                 };
-    pubnub.publish(channel = RetrieveStatusChannel, message = SendStatus)
+    #pubnub.publish(channel = RetrieveStatusChannel, message = SendStatus)
 
 Initialization()
 pubnub.subscribe( IndividualChannel, callback = DeviceControlCallback)
 pubnub.subscribe( StatusReportChannel, callback = StatusReportCallback)
-
-

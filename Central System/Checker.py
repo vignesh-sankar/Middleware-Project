@@ -17,7 +17,7 @@ StatusReportChannel  = "Checker"
 
 
 def GetStatusCallback(message, channel):
-    time.sleep(4)
+    time.sleep(7)
     pubnub.publish(channel = StatusReportChannel, message = "Check")
 
 pubnub.subscribe( StatusChannel,      callback = GetStatusCallback )

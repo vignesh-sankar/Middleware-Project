@@ -2,6 +2,7 @@ package com.example.sudharshanarutselvan.middleware;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,8 +38,15 @@ public class MainActivity extends AppCompatActivity {
     EditText password;
     String user_name ;
     String pass_word;
+    SharedPreferences sharedpreferences;
+    public static final String MyPREFERENCES = "MyPrefs" ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        String email = sharedpreferences.getString("email", null);
+        if(email != null){
+            getStat();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -77,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     // UI / internal notifications, etc
 
                     if (status.getCategory() == PNStatusCategory.PNConnectedCategory){
-                        pubnub.publish().channel("GetStatus").message("hello!!").async(new PNCallback<PNPublishResult>() {
+                        pubnub.publish().channel("GetStatus").message("Status").async(new PNCallback<PNPublishResult>() {
                             @Override
                             public void onResponse(PNPublishResult result, PNStatus status) {
                                 // Check whether request successfully completed or not.
@@ -119,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("TAG", "Message received! \n"+message);
                     Intent intent = new Intent(getApplicationContext(), StatusDisplay.class);
                     String msg = message.getMessage().toString();
+
                     intent.putExtra(EXTRA_MESSAGE, msg);
                     startActivity(intent);
 //                    TextView textView = (TextView) findViewById(R.id.printText);
@@ -170,6 +179,11 @@ public class MainActivity extends AppCompatActivity {
                         {Log.d("error", response);}
                         else
                         {
+                            SharedPreferences.Editor editor = sharedpreferences.edit();
+
+                            editor.putString("email", user_name);
+                            editor.putString("password", pass_word);
+                            editor.commit();
                             getStat();
 
                         }

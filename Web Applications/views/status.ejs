@@ -39,7 +39,7 @@
 
 	var publishConfig = {
         channel : "GetStatus",
-        message : "Hello from PubNub Docs!"
+        message : "Status"
     }
     pubnub.publish(publishConfig, function(status, response) {
         console.log(status, response);

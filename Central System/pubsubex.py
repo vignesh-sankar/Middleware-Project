@@ -49,23 +49,35 @@ def GetDeviceCallback(message, channel):
                         if((DevicesIntact['House'][name][devType].get(device))):
                             print("Already exist")
                         else:
-                            DevicesIntact['House'][name][devType][device]=(jsonObject[name][devType][device])
-                            print(DevicesIntact)
                             if(name == "Actuators"):
                                 NoOfDevices+=1
                                 DevicesResponse['Resp'][concatStr]=False
+				if(jsonObject[name][devType][device]['Status']):
+                    		    jsonObject[name][devType][device]['Status']=True
+                		else:
+                    		    jsonObject[name][devType][device]['Status']=False
+			    DevicesIntact['House'][name][devType][device]=(jsonObject[name][devType][device])
+                            print(DevicesIntact)
                     else:
-                        DevicesIntact['House'][name][devType]=(jsonObject[name][devType]);
-                        print(DevicesIntact)
                         if(name == "Actuators"):
                             NoOfDevices+=1
                             DevicesResponse['Resp'][concatStr]=False
+			    if(jsonObject[name][devType][device]['Status']):
+                    		jsonObject[name][devType][device]['Status']=True
+                	    else:
+                    		jsonObject[name][devType][device]['Status']=False
+			DevicesIntact['House'][name][devType]=(jsonObject[name][devType])
+                        print(DevicesIntact)
                 else:
-                    DevicesIntact['House'][name]=(jsonObject[name])
-                    print(DevicesIntact)
                     if(name == "Actuators"):
                         NoOfDevices+=1
                         DevicesResponse['Resp'][concatStr]=False
+			if(jsonObject[name][devType][device]['Status']):
+                    	    jsonObject[name][devType][device]['Status']=True
+                	else:
+                    	    jsonObject[name][devType][device]['Status']=False
+		    DevicesIntact['House'][name]=(jsonObject[name])
+                    print(DevicesIntact)
     print(DevicesResponse)
     #DevicesIntact = NewDeviceIntact;
 
@@ -84,7 +96,11 @@ def GetStatusCallback(message, channel):
         NoOfMsgs =0
         done = 0
         print(done)
-        pubnub.publish(channel = StatusReportChannel, message = message)
+        for i in DevicesResponse['Resp']:
+  	    splits = i.split("|")
+  	    print(splits[0]+splits[1])
+            pubnub.publish(channel = splits[0]+splits[1], message = message)
+	pubnub.publish(channel = StatusReportChannel, message = message)
     # pubnub.publish(channel = StatusRetrieveChannel, message = json.dumps(DevicesIntact))
 
 def CheckerCallback(message, channel):
@@ -119,10 +135,15 @@ def StatusRetrieve(message, channel):
     NoOfMsgs+=1
     jsonObject = json.loads(json.dumps(message))
     print(jsonObject)
+    
     for x in jsonObject:
         for i in jsonObject[x]:
             for j in jsonObject[x][i]:
-                DevicesIntact['House'][x][i][j]['Status']=jsonObject[x][i][j]
+		if(jsonObject[x][i][j]['Status']==1):
+  	            jsonObject[x][i][j]['Status']=True
+      		else:
+       		    jsonObject[x][i][j]['Status']=False
+                DevicesIntact['House'][x][i][j]['Status']=jsonObject[x][i][j]['Status']
                 DevicesResponse['Resp'][i+"|"+j]=True
     # print('['+channel+']: '+DevicesIntact+' N:'+str(NoOfMsgs))
     if(NoOfMsgs == NoOfDevices):
@@ -141,9 +162,10 @@ def ControlCallback(message, channel):
         if(DevicesIntact['House']['Actuators'][splits[0]].get(splits[1])):
             if(splits[2] == "false"):
                 DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Status']=False
+		pubnub.publish(channel = DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Channel'], message = "False:app")
             else:
                 DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Status']=True
-	    pubnub.publish(channel = DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Channel'], message = splits[2]+":app")
+		pubnub.publish(channel = DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Channel'], message = "True:app")
 
     pubnub.publish(channel = statusSendChannel, message = DevicesIntact['House']['Actuators'])
     print(DevicesIntact)
@@ -156,9 +178,11 @@ def SensorCallback(message, channel):
     if(DevicesIntact['House']['Actuators'].get(splits[0])):
         if(DevicesIntact['House']['Actuators'][splits[0]].get(splits[1])):
             DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Status']=splits[2]
-	    pubnub.publish(channel = "GetStatus", message = DevicesIntact['House']['Actuators'])
-	    pubnub.publish(channel = DevicesIntact['House']['Actuators'][name][devType]['Channel'], message = splits[2]+":sen")
+	    # pubnub.publish(channel = "GetStatus", message = "Status")
+	    pubnub.publish(channel = DevicesIntact['House']['Actuators'][splits[0]][splits[1]]['Channel'], message = splits[2]+":sen")
+	    time.sleep(2)
     print(DevicesIntact)
+    pubnub.publish(channel = "GetStatus", message = "Status")
 
 # Call back for retrieving status from the device that was controlled
 def DeviceReply(message, channel):
@@ -179,12 +203,13 @@ def GasCallback(message, channel):
 
     cursor = cnx.cursor()
 
-    query = ("SELECT * FROM LoginDetails")
+    query = ("SELECT PhoneNo FROM LoginDetails")
 
     cursor.execute(query)
     print(cursor)
     for (name) in cursor:
         print("{}".format(name))
+	pubnub.publish(channel="clicksend-text", message={"to":name[0],"body":"Gas Leakage Alert!!"})
 
     cursor.close()
     cnx.close()
